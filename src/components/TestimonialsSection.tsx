@@ -1,41 +1,33 @@
-import { Star, Quote } from "lucide-react";
+import { CircularTestimonials } from "@/components/ui/circular-testimonials";
 
 const testimonials = [
   {
-    id: 1,
-    name: "Sarah Johnson",
-    role: "Software Developer",
-    avatar: "SJ",
-    rating: 5,
-    review:
+    quote:
       "Amazing selection and the delivery was super fast! My new laptop exceeded all expectations. The customer service team was incredibly helpful.",
+    name: "Sarah Johnson",
+    designation: "Software Developer",
+    src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
   },
   {
-    id: 2,
-    name: "Michael Chen",
-    role: "Graphic Designer",
-    avatar: "MC",
-    rating: 5,
-    review:
+    quote:
       "Best prices I've found anywhere. The product quality is outstanding and the warranty support gave me peace of mind. Highly recommended!",
+    name: "Michael Chen",
+    designation: "Graphic Designer",
+    src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
   },
   {
-    id: 3,
-    name: "Emily Williams",
-    role: "Business Analyst",
-    avatar: "EW",
-    rating: 5,
-    review:
+    quote:
       "Tech Zone has become my go-to store for all tech purchases. The website is easy to use and the checkout process is seamless.",
+    name: "Emily Williams",
+    designation: "Business Analyst",
+    src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
   },
   {
-    id: 4,
-    name: "David Martinez",
-    role: "Content Creator",
-    avatar: "DM",
-    rating: 5,
-    review:
+    quote:
       "I've been a loyal customer for 3 years now. Every purchase has been smooth and the products are always genuine and well-packaged.",
+    name: "David Martinez",
+    designation: "Content Creator",
+    src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
   },
 ];
 
@@ -44,7 +36,8 @@ export const TestimonialsSection = () => {
     <section id="testimonials" className="py-16 md:py-24 bg-background">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
+          <div className="w-16 h-1 bg-[#FCA331] mx-auto mb-6 rounded-full"></div>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
             What Our Customers Say
           </h2>
@@ -53,47 +46,25 @@ export const TestimonialsSection = () => {
           </p>
         </div>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="bg-card p-6 rounded-xl card-shadow relative"
-            >
-              {/* Quote Icon */}
-              <Quote className="absolute top-4 right-4 h-8 w-8 text-primary/10" />
-
-              {/* Rating */}
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                  />
-                ))}
-              </div>
-
-              {/* Review */}
-              <p className="text-foreground mb-6 leading-relaxed">
-                "{testimonial.review}"
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm">
-                  {testimonial.avatar}
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {testimonial.role}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Circular Testimonials */}
+        <div className="flex justify-center">
+          <CircularTestimonials
+            testimonials={testimonials}
+            autoplay={true}
+            colors={{
+              name: "#14213D",
+              designation: "#6b7280",
+              testimony: "#4b5563",
+              arrowBackground: "#FCA331",
+              arrowForeground: "#ffffff",
+              arrowHoverBackground: "#14213D",
+            }}
+            fontSizes={{
+              name: "1.5rem",
+              designation: "0.925rem",
+              quote: "1.125rem",
+            }}
+          />
         </div>
       </div>
     </section>

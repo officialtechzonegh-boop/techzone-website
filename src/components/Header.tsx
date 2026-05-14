@@ -58,7 +58,7 @@ export const Header = () => {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2">
               <MapPin className="h-3.5 w-3.5 text-[#FCA331]" />
-              300 Pennsylvania Ave NW, Washington, DC 20006, USA
+              KUMASI, GHANA
             </span>
             <span className="flex items-center gap-2 border-l border-zinc-700 pl-6 cursor-pointer hover:text-[#FCA331] transition-colors">
               <Phone className="h-3.5 w-3.5 text-[#FCA331]" />
@@ -183,7 +183,7 @@ export const Header = () => {
                   <MapPin className="h-4 w-4" />
                 </div>
                 <div className="transition-transform group-hover:translate-x-1 duration-300 hidden lg:block">
-                  <p className="text-[14px] font-black text-[#14213D] leading-none">Accra, Ghana</p>
+                  <p className="text-[14px] font-black text-[#14213D] leading-none">Kumasi, Ghana</p>
                 </div>
               </div>
 

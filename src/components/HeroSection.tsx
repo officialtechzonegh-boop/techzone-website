@@ -1,17 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Zap } from "lucide-react";
-import heroBanner from "@/assets/hero-banner.jpg";
+import { useState, useEffect } from "react";
+import laptop1 from "@/assets/laptop-1.jpg";
+import laptop4 from "@/assets/laptop-4.jpg";
+
+const heroImages = [laptop1, laptop4];
 
 export const HeroSection = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <section id="home" className="relative overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
-        <img
-          src={heroBanner}
-          alt="Tech Zone Hero"
-          className="h-full w-full object-cover"
-        />
+        {heroImages.map((image, index) => (
+          <img
+            key={index}
+            src={image}
+            alt="Tech Zone Hero"
+            className={`h-full w-full object-cover absolute inset-0 transition-opacity duration-1000 ${
+              index === currentImageIndex ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/70 to-transparent" />
       </div>
 
