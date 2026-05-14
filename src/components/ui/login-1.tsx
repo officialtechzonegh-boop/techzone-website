@@ -13,6 +13,7 @@ import { auth, db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Mail, Lock, ChevronRight, LogIn, UserPlus } from 'lucide-react';
+import { emailService } from '@/lib/emailService';
 
 export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -58,12 +59,24 @@ export default function LoginScreen() {
 
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, formData.email, formData.password);
-        toast.success('Successfully logged in!');
+        const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+        const userName = userCredential.user.displayName || formData.email.split("@")[0];
+        
+        // Send login confirmation email
+        emailService.sendLoginEmail(userName, formData.email)
+          .catch(err => console.error("Failed to send login email:", err));
+        
+        toast.success('Successfully logged in! Check your email for confirmation.');
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+        const userName = formData.email.split("@")[0];
         await createUserProfile(userCredential.user);
-        toast.success('Account created successfully!');
+        
+        // Send welcome email
+        emailService.sendLoginEmail(userName, formData.email)
+          .catch(err => console.error("Failed to send welcome email:", err));
+        
+        toast.success('Account created successfully! Check your email for confirmation.');
       }
       navigate(-1); // Go back to previous page (likely checkout or home)
     } catch (error: any) {
@@ -89,7 +102,16 @@ export default function LoginScreen() {
       const userCredential = await signInWithPopup(auth, provider);
       await createUserProfile(userCredential.user);
       
-      toast.success(`Successfully logged in with ${providerName}!`);
+      const userName = userCredential.user.displayName || userCredential.user.email?.split("@")[0] || "User";
+      const userEmail = userCredential.user.email || "";
+      
+      // Send login confirmation email
+      if (userEmail) {
+        emailService.sendLoginEmail(userName, userEmail)
+          .catch(err => console.error("Failed to send social login email:", err));
+      }
+      
+      toast.success(`Successfully logged in with ${providerName}! Check your email for confirmation.`);
       navigate(-1);
     } catch (error: any) {
       console.error('Social login error:', error);

@@ -19,6 +19,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { emailService } from "@/lib/emailService";
 
 type CheckoutFormValues = {
   name: string;
@@ -70,10 +71,57 @@ const CheckoutPage = () => {
         status: "pending",
       };
 
-      await addDoc(collection(db, "orders"), orderData);
+      const orderRef = await addDoc(collection(db, "orders"), orderData);
+      const orderId = orderRef.id;
+      
+      // Send purchase confirmation email to customer
+      const customerEmailSent = await emailService.sendPurchaseConfirmation(
+        values.name,
+        values.email,
+        {
+          items: cartItems.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          subtotal,
+          total,
+          orderId
+        }
+      );
+      
+      if (!customerEmailSent) {
+        console.warn("Failed to send customer confirmation email");
+      }
+      
+      // Send notification email to admin
+      const adminEmailSent = await emailService.sendAdminNotification(
+        {
+          name: values.name,
+          email: values.email,
+          contact: values.contact,
+          location: values.location,
+          address: values.address,
+          paymentMethod: values.paymentMethod
+        },
+        {
+          items: cartItems.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          subtotal,
+          total,
+          orderId
+        }
+      );
+      
+      if (!adminEmailSent) {
+        console.warn("Failed to send admin notification email");
+      }
       
       clearCart();
-      toast.success("Order placed successfully");
+      toast.success("Order placed successfully! Check your email for confirmation.");
       setShowForm(false);
       form.reset(values);
     } catch (error) {
