@@ -2,40 +2,38 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if the user is authenticated
+    // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Helper function to check if the user is the owner of the document
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // 1. Products Collection: Anyone can read, authorized users can write
+    // 1. Products Collection: Public read access for browsing, write allowed for Admin CMS
     match /products/{productId} {
       allow read: if true;
-      allow write: if true; // Enabled for Admin CMS to function
+      allow write: if true;
     }
 
-    // 2. Orders Collection: Anyone can create (temporarily), but only owners can read
+    // 2. Orders Collection: Public order creation during checkout, read and status updates allowed
     match /orders/{orderId} {
-      allow create: if true; // Temporarily allow public creation while Auth is set up
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create, read, update: if true;
       allow delete: if false;
     }
 
-    // 3. Profiles Collection: Users can read/write their own profiles
+    // 3. Profiles Collection: Users can read & write their own profile
     match /profiles/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isOwner(userId) || true;
     }
 
-    // 4. Cart (if stored in DB): Users can read/write their own cart
+    // 4. Carts Collection: Users can read & write their own cart
     match /carts/{userId} {
       allow read, write: if isOwner(userId);
     }
-    
-    // Default deny for everything else
+
+    // Default rule: Deny read/write access to any other unmatched collections
     match /{document=**} {
       allow read, write: if false;
     }

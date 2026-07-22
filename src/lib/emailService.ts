@@ -1,11 +1,11 @@
 const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "admin@techzone.com";
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "officialtechzonegh@gmail.com";
 
 // Log configuration on load
 console.log(" Brevo Email Service Initialized");
 console.log("API Key configured:", !!BREVO_API_KEY);
-console.log("Sender Email:", import.meta.env.VITE_BREVO_SENDER_EMAIL || "noreply@techzone.com");
+console.log("Sender Email:", import.meta.env.VITE_BREVO_SENDER_EMAIL || "officialtechzonegh@gmail.com");
 console.log("Admin Email:", ADMIN_EMAIL);
 
 // Email templates
@@ -326,26 +326,34 @@ export const sendEmail = async (
   htmlContent: string
 ): Promise<boolean> => {
   try {
+    console.log("========== EMAIL DEBUG ==========");
+    console.log("Recipient:", to);
+    console.log("Subject:", subject);
+    console.log("API Key exists:", !!BREVO_API_KEY);
+    console.log("API Key length:", BREVO_API_KEY?.length || 0);
+    console.log("Sender Email:", import.meta.env.VITE_BREVO_SENDER_EMAIL || "officialtechzonegh@gmail.com");
+    console.log("=================================");
+
     if (!BREVO_API_KEY) {
-      console.warn("Brevo API key not configured. Email not sent.");
-      console.warn("Please add VITE_BREVO_API_KEY to your .env file");
+      console.error("❌ CRITICAL: Brevo API key is not configured!");
+      console.error("Please check your .env file has VITE_BREVO_API_KEY set");
       return false;
     }
 
-    console.log("Attempting to send email to:", to);
-    console.log("Using sender:", import.meta.env.VITE_BREVO_SENDER_EMAIL || "noreply@techzone.com");
-
+    const senderEmail = import.meta.env.VITE_BREVO_SENDER_EMAIL || "officialtechzonegh@gmail.com";
+    
     const requestBody = {
       sender: {
         name: "TechZone",
-        email: import.meta.env.VITE_BREVO_SENDER_EMAIL || "noreply@techzone.com",
+        email: senderEmail,
       },
       to: [{ email: to }],
       subject: subject,
       htmlContent: htmlContent,
     };
 
-    console.log("Sending request to Brevo API...");
+    console.log("📤 Sending request to Brevo...");
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
     
     const response = await fetch(BREVO_API_URL, {
       method: "POST",
@@ -356,33 +364,54 @@ export const sendEmail = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log("Brevo API Response Status:", response.status);
+    console.log("📥 Response received");
+    console.log("Status:", response.status);
+    console.log("Status Text:", response.statusText);
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error("❌ Brevo API Error:", error);
-      console.error("Error Message ID:", error.message);
-      console.error("Error Code:", error.code);
+      const errorText = await response.text();
+      console.error("❌ Brevo API Error Response:");
+      console.error("Status:", response.status);
+      console.error("Response:", errorText);
       
-      // Provide helpful error messages
-      if (error.code === "unauthorized" || response.status === 401) {
-        console.error("🔑 Invalid API key. Please check your VITE_BREVO_API_KEY in .env");
-      } else if (error.code === "invalid_parameter" && error.message.includes("sender")) {
-        console.error("📧 Sender email not verified. Please verify your sender email in Brevo dashboard");
+      try {
+        const error = JSON.parse(errorText);
+        console.error("Error Code:", error.code);
+        console.error("Error Message:", error.message);
+        
+        // Specific error handling
+        if (response.status === 401 || error.code === "unauthorized") {
+          console.error("\n🔑 API KEY ERROR: Your API key is invalid or expired");
+          console.error("   Solution: Get a new API key from https://my.brevo.com/account/api-keys");
+        } else if (response.status === 400 && error.message && error.message.includes("sender")) {
+          console.error("\n SENDER ERROR: Your sender email is not verified");
+          console.error("   Solution: Verify your email at https://my.brevo.com/account/senders");
+          console.error("   Current sender:", senderEmail);
+        } else if (response.status === 403) {
+          console.error("\n🚫 PERMISSION ERROR: Account restricted or email quota exceeded");
+          console.error("   Solution: Check your Brevo account status");
+        }
+      } catch (e) {
+        console.error("Could not parse error response");
       }
       
       return false;
     }
 
     const successResponse = await response.json();
-    console.log(`✅ Email sent successfully to ${to}`);
+    console.log("✅ Email sent successfully!");
     console.log("Message ID:", successResponse.messageId);
+    console.log("=================================\n");
     return true;
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error("❌ Network/Unexpected Error:");
+    console.error(error);
     if (error instanceof Error) {
-      console.error("Error details:", error.message);
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
     }
+    console.log("=================================\n");
     return false;
   }
 };

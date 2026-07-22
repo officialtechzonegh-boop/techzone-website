@@ -39,8 +39,6 @@ export const ServicesSection = () => {
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-16">
-          {/* Decorative Line */}
-          <div className="w-16 h-1 bg-[#FCA331] mx-auto mb-6 rounded-full"></div>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
             Our Services
           </h2>
