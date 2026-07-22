@@ -42,6 +42,7 @@ export const ServicesSection = () => {
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
             Our Services
           </h2>
+          <div className="w-16 h-1 bg-[#FCA331] mx-auto mt-3 rounded-full"></div>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
             We provide exceptional services to make your shopping experience seamless and enjoyable
           </p>
